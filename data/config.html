@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"><title>ADM v1.0</title>
+<style>
+body{background:#111;color:#ccc;font-family:sans-serif;padding:20px}
+.tab{display:none} .tab.active{display:block}
+button{background:#333;color:#eee;border:1px solid #444;padding:8px;cursor:pointer}
+button.active{background:#00a884}
+#mon{color:#0f0;margin-bottom:15px;font-family:monospace}
+</style>
+</head>
+<body>
+<div id="mon">Loading...</div>
+<nav><button id="btn0" class="active" onclick="sh(0)">СИСТЕМА</button><button id="btn1" onclick="sh(1)">ФАЙЛЫ</button></nav>
+<div id="tab0" class="tab active">
+    <h3>OTA Update</h3>
+    <input type="file" id="ota"> <input type="text" id="md5" placeholder="x-md5 header">
+    <button onclick="doOTA()">ОБНОВИТЬ</button>
+</div>
+<div id="tab1" class="tab"><table id="flist" border="1" style="width:100%"></table></div>
+<script>
+function sh(n){
+    document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i==n));
+    document.querySelectorAll('nav button').forEach((b,i)=>b.classList.toggle('active',i==n));
+    if(n==1)loadFiles();
+}
+async function loadFiles(){
+    const r=await fetch('/list'); const d=await r.json();
+    let h='<tr><th>File</th><th>Size</th></tr>';
+    d.forEach(f=>h+=`<tr><td>${f.name}</td><td>${f.size}</td></tr>`);
+    document.getElementById('flist').innerHTML=h;
+}
+async function doOTA(){
+    const f=document.getElementById('ota').files[0];
+    const m=document.getElementById('md5').value;
+    const fd=new FormData(); fd.append('u',f);
+    await fetch('/update',{method:'POST',body:fd,headers:{'x-md5':m}});
+    alert('Sent');
+}
+setInterval(async()=>{
+    const r=await fetch('/stat'); const d=await r.json();
+    document.getElementById('mon').innerText=`Heap: ${d.heap} | Uptime: ${d.uptime}s`;
+},2000);
+</script>
+</body>
+</html>
+

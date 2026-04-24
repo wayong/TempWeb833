@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDENTITY LOGIN</title>
+<style>
+body{background:#0b141a;color:#fff;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;font-family:sans-serif}
+form{background:#202d36;padding:30px;border-radius:10px;text-align:center;max-width:320px}
+input{width:100%;padding:12px;margin:10px 0;background:#2a3942;border:none;color:#fff;border-radius:5px;box-sizing:border-box}
+button{width:100%;padding:12px;background:#00a884;border:none;color:#fff;cursor:pointer;border-radius:5px}
+#err{color:#ff5f5f;font-size:12px;margin-top:10px}
+</style>
+</head>
+<body>
+<form onsubmit="login();return false">
+    <h2>ВХОД</h2>
+    <input type="text" id="l" placeholder="Логин" required>
+    <input type="password" id="p" placeholder="Пароль" required>
+    <button type="submit">ВОЙТИ</button>
+    <div id="err"></div>
+</form>
+<script>
+async function login(){
+    const l=document.getElementById('l').value, p=document.getElementById('p').value, e=document.getElementById('err');
+    const fd = new FormData(); fd.append('l', l); fd.append('p', p);
+    const r = await fetch('/login', {method:'POST', body:fd});
+    const txt = await r.text();
+    if(r.status === 200) {
+        localStorage.setItem('uid', txt); localStorage.setItem('login', l);
+        location.href='/index.html';
+    } else { e.innerText = txt; }
+}
+</script>
+</body>
+</html>
+
